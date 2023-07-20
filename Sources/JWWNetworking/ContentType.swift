@@ -1,23 +1,23 @@
 import Foundation
 
 /// A type-safe value that can be used to declare the MIME type
-struct ContentType: Hashable, CustomStringConvertible {
+public struct ContentType: Hashable, CustomStringConvertible {
     /// The content type name that is passed as the value in the HTTP header.
-    let value: String
+    public let value: String
 
     /// Create a ContentType object
     ///
     /// - Parameter value: The content type name that is passed as the value in the HTTP header.
-    init(_ value: String) {
+    public init(_ value: String) {
         self.value = value
     }
 
-    nonisolated var description: String {
+    public nonisolated var description: String {
         value
     }
 }
 
-extension ContentType {
+public extension ContentType {
     /// Content type for plain text.
     static let text = ContentType("text/plain")
 
