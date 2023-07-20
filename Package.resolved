@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "jww-xctest-extensions",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/justin/jww-xctest-extensions.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "9c60eff21e00e63d1a8380c9613063a525beecf5"
+      }
+    }
+  ],
+  "version" : 2
+}
