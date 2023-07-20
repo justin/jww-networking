@@ -32,6 +32,16 @@ public actor HTTPClient {
         }
     }
 
+    /// Encoder provided by the client configuration.
+    private var encoder: JSONEncoder {
+        configuration.encoder
+    }
+
+    /// Decoder provided by the client configuration.
+    private var decoder: JSONDecoder {
+        configuration.decoder
+    }
+
     // MARK: Initialization
     // ====================================
     // Initialization
@@ -54,13 +64,20 @@ public actor HTTPClient {
 
     /// Convert a request template into a network request and attempt to return the expected values.
     @discardableResult
-    public func send<T: NetworkRequest>(request: T) async throws -> T.Output {
+    public func send<T: NetworkRequest>(request: T) async throws -> NetworkResponse<T.Output> {
         let builder = NetworkRequestBuilder(template: request)
         let generatedRequest = try builder.build(for: self)
 
-        let (data, _) = try await session.data(for: generatedRequest, delegate: nil)
-        let (output, _) = try T.self.decode(response: data, with: configuration.decoder)
+        let (data, response) = try await session.data(for: generatedRequest, delegate: nil)
+        let (output, context) = try type(of: request).decode(response: data, with: decoder)
 
-        return output
+        let result = NetworkResponse(value: output, response: response, context: context)
+
+        return result
+    }
+
+    /// Convert a request template into a network request and attempt to return the expected values.
+    public func send<T: ComposedNetworkRequest>(collection: T) async throws -> T.Output {
+        return try await collection.run(using: self)
     }
 }

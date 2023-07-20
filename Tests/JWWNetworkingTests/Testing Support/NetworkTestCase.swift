@@ -57,7 +57,7 @@ class NetworkTestCase: XCTestCase {
     ///   - template: The request template you want to stub a response for.
     ///   - statusCode: The status code to return when the URL is encountered.
     ///   - response: The response fake to return along with the response.
-    func addStubResponse(forTemplate template: any NetworkRequest, statusCode: Int, response: NetworkResponseFake) async throws {
+    func addStubResponse<T: NetworkRequest>(forTemplate template: T, statusCode: Int, response: T.Output) async throws {
         let builder = try NetworkRequestBuilder(template: template).build(for: client)
         let url = try XCTUnwrap(builder.url)
         let data = try client.configuration.encoder.encode(response)

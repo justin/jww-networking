@@ -3,7 +3,7 @@ import Foundation
 /// Protocol that defines the attributes and methods needed to generate a request JWWNetworking can understand.
 public protocol NetworkRequest<Output, Failure>: Sendable {
     /// The type of response object that should be parsed.
-    associatedtype Output: Decodable
+    associatedtype Output: Codable
     /// The type of error that will be returned upon failure.
     associatedtype Failure = Error
 
