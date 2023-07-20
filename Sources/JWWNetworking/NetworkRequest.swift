@@ -1,7 +1,7 @@
 import Foundation
 
 /// Protocol that defines the attributes and methods needed to generate a request JWWNetworking can understand.
-protocol NetworkRequest<Output, Failure>: Sendable {
+public protocol NetworkRequest<Output, Failure>: Sendable {
     /// The type of response object that should be parsed.
     associatedtype Output: Decodable
     /// The type of error that will be returned upon failure.
@@ -12,6 +12,9 @@ protocol NetworkRequest<Output, Failure>: Sendable {
 
     /// The path for the request.
     var path: String { get }
+
+    /// Optional. Request body.
+    var body: Data? { get }
 
     /// The query parameters to append to the request.
     var queryItems: [URLQueryItem] { get }
@@ -31,7 +34,7 @@ protocol NetworkRequest<Output, Failure>: Sendable {
 // Default Implementations
 // ====================================
 
-extension NetworkRequest {
+public extension NetworkRequest {
     static func decode(response: Data, with decoder: JSONDecoder) throws -> (Output, DecodingContext?) {
         let result = try decoder.decode(Output.self, from: response)
 
