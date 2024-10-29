@@ -14,7 +14,7 @@ let package = Package(
         .plugin(name: "SwiftLint", targets: ["SwiftLint"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/justin/jww-xctest-extensions.git", branch: "main")
+        .package(url: "https://github.com/justin/jww-xctest-extensions", from: "1.4.0")
     ],
     targets: [
         .target(

@@ -1,14 +1,15 @@
 {
+  "originHash" : "5ab9d1337bf47c09838811cbc7918fb6f36e0f9ca6b9bf94e47a43607a949da8",
   "pins" : [
     {
       "identity" : "jww-xctest-extensions",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/justin/jww-xctest-extensions.git",
+      "location" : "https://github.com/justin/jww-xctest-extensions",
       "state" : {
-        "branch" : "main",
-        "revision" : "9c60eff21e00e63d1a8380c9613063a525beecf5"
+        "revision" : "92f6a65d69280d10b865d8740bcd380dc0796d59",
+        "version" : "1.4.1"
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

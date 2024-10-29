@@ -1,6 +1,5 @@
 disabled_rules:
   - mark
-  - identifier_name
   - cyclomatic_complexity
   - nesting
 
