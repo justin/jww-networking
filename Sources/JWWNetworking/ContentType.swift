@@ -1,7 +1,7 @@
 import Foundation
 
 /// A type-safe value that can be used to declare the MIME type
-public struct ContentType: Hashable, CustomStringConvertible {
+public struct ContentType: Hashable, CustomStringConvertible, Sendable {
     /// The content type name that is passed as the value in the HTTP header.
     public let value: String
 

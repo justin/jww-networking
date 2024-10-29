@@ -3,7 +3,7 @@ import Foundation
 /// Object used to manage the list of stubbed responses that can be passed into the `MockedURLProtocol`.
 final class MockNetwork: @unchecked Sendable {
     /// The shared instance that can be used to register and return response stubs.
-    static var shared = MockNetwork()
+    static let shared = MockNetwork()
 
     /// Array of response payload stubs that can be returned by the `MockURLProtocol`.
     private(set) var stubs: [NetworkResponseStub] = []
