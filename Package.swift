@@ -11,7 +11,6 @@ let package = Package(
     ],
     products: [
         .library(name: "JWWNetworking", targets: ["JWWNetworking"]),
-        .plugin(name: "SwiftLint", targets: ["SwiftLint"]),
     ],
     dependencies: [
         .package(url: "https://github.com/justin/jww-xctest-extensions", from: "1.4.0"),
@@ -22,9 +21,6 @@ let package = Package(
             name: "JWWNetworking",
             dependencies:  [
                 .product(name: "HTTPTypes", package: "swift-http-types")
-            ],
-            plugins: [
-                .plugin(name: "SwiftLint")
             ]),
 
         .testTarget(
@@ -32,15 +28,6 @@ let package = Package(
             dependencies: [
                 "JWWNetworking",
                 .product(name: "JWWTestExtensions", package: "jww-xctest-extensions")
-            ]),
-        .binaryTarget(
-            name: "SwiftLintBinary",
-            url: "https://github.com/realm/SwiftLint/releases/download/0.57.0/SwiftLintBinary-macos.artifactbundle.zip",
-            checksum: "a1bbafe57538077f3abe4cfb004b0464dcd87e8c23611a2153c675574b858b3a"),
-
-        .plugin(
-            name: "SwiftLint",
-            capability: .buildTool(),
-            dependencies: ["SwiftLintBinary"]),
+            ])
     ]
 )
