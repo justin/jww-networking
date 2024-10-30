@@ -10,7 +10,7 @@ final class HTTPClientTests: NetworkTestCase {
         let fakeResponse = NetworkResponseFake(value: "test-is-valid")
         try await addStubResponse(forTemplate: template, statusCode: 200, response: fakeResponse)
 
-        let result = try await client.send(request: template)
+        let result = try await client.send(template: template)
 
         XCTAssertEqual(result, fakeResponse)
     }
@@ -21,8 +21,8 @@ final class HTTPClientTests: NetworkTestCase {
         let error = URLError(.badURL)
         try await addStubResponse(forTemplate: template, error: error)
 
-        await JWWAssertThrowsError(try await client.send(request: template)) { error in
-            XCTAssertTrue(error is URLError, "Expected error type returned to be a URLError.")
+        await JWWAssertThrowsError(try await client.send(template: template)) { error in
+            XCTAssertTrue(error is JWWNetworkError, "Expected error type returned to be a JWWNetworkError.")
         }
     }
 }

@@ -60,7 +60,7 @@ class NetworkTestCase: XCTestCase {
     func addStubResponse(forTemplate template: any NetworkRequest, statusCode: Int, response: NetworkResponseFake) async throws {
         let builder = try NetworkRequestBuilder(template: template).build(for: client)
         let url = try XCTUnwrap(builder.url)
-        let data = try client.configuration.encoder.encode(response)
+        let data = try await client.configuration.encoder.encode(response)
 
         let stub = NetworkResponseStub(url: url, statusCode: statusCode, data: data)
         MockNetwork.shared.addStub(stub)

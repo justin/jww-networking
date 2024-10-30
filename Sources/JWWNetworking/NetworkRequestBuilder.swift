@@ -1,4 +1,5 @@
 import Foundation
+import HTTPTypes
 
 /// Type that converst a network request template into a valid `URLRequest` object.
 public struct NetworkRequestBuilder {
@@ -26,28 +27,29 @@ public struct NetworkRequestBuilder {
     /// Convert a request template into a valid `URLRequest`.
     ///
     /// - Returns: A valid `URLRequest` that can be passed into a `URLSession`.
-    public func build(for client: HTTPClient) throws -> URLRequest {
-        var components = URLComponents(url: client.configuration.baseURL, resolvingAgainstBaseURL: false)
+    public func build(for client: HTTPClient) throws(JWWNetworkError) -> URLRequest {
+        let url = template.url ?? client.configuration.baseURL
+
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         components?.pathValue = Path(template.path)
         if !template.queryItems.isEmpty {
             components?.queryItems = template.queryItems
         }
 
         guard let url = components?.url else {
-            throw URLError(.badURL)
+            throw JWWNetworkError.invalidRequest
         }
 
         var request = URLRequest(url: url)
         request.httpMethod = String(describing: template.method)
-        request.allHTTPHeaderFields = try buildRequestHeaders()
+        request.allHTTPHeaderFields = buildRequestHeaders()
         request.httpBody = template.body
 
         return request
     }
-
-    private func buildRequestHeaders() throws -> [String: String] {
+    private func buildRequestHeaders() -> [String: String] {
         let requestHeaders: [String: String] = template.headers.reduce(into: [:]) { result, x in
-            result[x.key.value] = x.value
+            result[x.key.rawName] = x.value
         }
 
         return requestHeaders
