@@ -1,4 +1,5 @@
 import XCTest
+import HTTPTypes
 @testable import JWWNetworking
 
 /// Tests to exercise our `NetworkRequestBuilder` type.
@@ -11,7 +12,7 @@ final class NetworkRequestBuilderTests: NetworkTestCase {
         ]
         let path = "/one/two/three"
         let expectedURL = URL(string: "https://localhost/one/two/three?key1=value1&key2=value2")
-        let expectedMethod: HTTPMethod = .get
+        let expectedMethod: HTTPRequest.Method = .get
         let template = NetworkRequestFake(baseURL: TestingConstants.baseURL,
                                           path: path,
                                           queryItems: queryItems,
@@ -32,8 +33,8 @@ final class NetworkRequestBuilderTests: NetworkTestCase {
         ]
 
         let request = NetworkRequestFake(url: TestingConstants.baseURL, headers: [
-            HTTPRequestHeaderKey("Foo"): "Bar",
-            HTTPRequestHeaderKey("Fiz"): "Buzz"
+            HTTPField.Name("Foo")!: "Bar",
+            HTTPField.Name("Fiz")!: "Buzz"
         ])
 
         let result = try NetworkRequestBuilder(template: request).build(for: client)

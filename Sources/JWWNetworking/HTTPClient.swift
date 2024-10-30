@@ -1,12 +1,13 @@
 import Foundation
+import HTTPTypes
 
 /// Primary client for accessing an HTTP API.
 public actor HTTPClient {
     /// The network configuration to use for composing and sending requests.
-    public nonisolated let configuration: Configuration
+    public let configuration: Configuration
 
     /// The `URLSession` instance for making requests.
-    public nonisolated let session: URLSession
+    public let session: URLSession
 
     /// Object that contains configuration information for setting up the HTTP client.
     public struct Configuration: Sendable {
@@ -54,13 +55,38 @@ public actor HTTPClient {
 
     /// Convert a request template into a network request and attempt to return the expected values.
     @discardableResult
-    public func send<T: NetworkRequest>(request: T) async throws -> T.Output {
-        let builder = NetworkRequestBuilder(template: request)
+    public func send<T: NetworkRequest>(template: T) async throws(JWWNetworkError) -> T.Output {
+        let builder = NetworkRequestBuilder(template: template)
         let generatedRequest = try builder.build(for: self)
 
-        let (data, _) = try await session.data(for: generatedRequest, delegate: nil)
-        let (output, _) = try T.self.decode(response: data, with: configuration.decoder)
+        do {
+            let (data, response) = try await session.data(for: generatedRequest)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                throw JWWNetworkError.invalidResponse(response)
+            }
 
-        return output
+            let statusCode = httpResponse.statusCode
+            if statusCode == 401 {
+                let message = HTTPURLResponse.localizedString(forStatusCode: statusCode)
+                throw JWWNetworkError.requestFailed(code: statusCode, message: message)
+            }
+
+            guard HTTPURLResponse.successStatusCodes.contains(statusCode) else {
+                let message = HTTPURLResponse.localizedString(forStatusCode: statusCode)
+                throw JWWNetworkError.requestFailed(code: statusCode, message: message)
+            }
+
+            let decoder = configuration.decoder
+            do {
+                let (object, _) = try type(of: template).decode(response: data, with: decoder)
+                return object
+            } catch {
+                throw JWWNetworkError.decodingError(type(of: template).Output.self, data, error)
+            }
+        } catch let error as JWWNetworkError {
+            throw error
+        } catch let error {
+            throw JWWNetworkError.untypedError(error: error)
+        }
     }
 }
