@@ -2,31 +2,31 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - '.github/workflows/ci.yml'
-      - 'Package*'
-      - 'Sources/**'
-      - 'Plugins/**'
-      - 'Tests/**'
+      - ".github/workflows/ci.yml"
+      - "Package*"
+      - "Sources/**"
+      - "Plugins/**"
+      - "Tests/**"
 
   pull_request:
-    branches: [ main ]
+    branches: [main]
     paths:
-      - '.github/workflows/ci.yml'
-      - 'Package*'
-      - 'Sources/**'
-      - 'Plugins/**'
-      - 'Tests/**'
+      - ".github/workflows/ci.yml"
+      - "Package*"
+      - "Sources/**"
+      - "Plugins/**"
+      - "Tests/**"
 
 jobs:
   tests:
     name: "Unit Tests"
-    runs-on: macos-12
+    runs-on: macos-latest
     strategy:
       fail-fast: false
       matrix:
-        xcode-version: ['^14.0']
+        xcode-version: ["^16.0"]
 
     steps:
       - name: Checkout
