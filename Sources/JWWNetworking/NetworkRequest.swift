@@ -1,5 +1,6 @@
 import Foundation
 import HTTPTypes
+import JWWCore
 
 /// Protocol that defines the attributes and methods needed to generate a request JWWNetworking can understand.
 public protocol NetworkRequest<Output, Failure>: Sendable {

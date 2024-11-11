@@ -1,6 +1,15 @@
 {
-  "originHash" : "7d8ab82efd7887f9a85234030cdbd3eef10fdd05debcb866fdf2a0d9c9c29f03",
+  "originHash" : "fe671798fb4e7a3ed68bfe71d706f2f290ac641a4d445e1ca42ca9cd93d5813a",
   "pins" : [
+    {
+      "identity" : "jww-standard-lib",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/justin/jww-standard-lib",
+      "state" : {
+        "revision" : "d679860c9dbc284c2531a8ef9ace3f3b49080c73",
+        "version" : "1.2.0"
+      }
+    },
     {
       "identity" : "jww-xctest-extensions",
       "kind" : "remoteSourceControl",
