@@ -30,6 +30,10 @@ public struct NetworkRequestBuilder {
     public func build(for client: HTTPClient) throws(JWWNetworkError) -> URLRequest {
         let url = template.url ?? client.configuration.baseURL
 
+        guard let url else {
+            throw JWWNetworkError.invalidRequest
+        }
+
         var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         components?.pathValue = Path(template.path)
         if !template.queryItems.isEmpty {
