@@ -10,9 +10,10 @@ public actor HTTPClient {
     public let session: URLSession
 
     /// Object that contains configuration information for setting up the HTTP client.
-    public struct Configuration: Sendable {
-        /// The base URL to use for requests sent through the client.
-        public let baseURL: URL
+    public final class Configuration: Sendable {
+        /// Optional. The base URL to use for requests sent through the client. If this is not set,
+        /// the client will use the URL provided in the request template. If neither is set the client will throw an error of type `JWWNetworkError.invalidRequest`.
+        public let baseURL: URL?
 
         /// The default decoder for parsing payloads.
         public let decoder: JSONDecoder
@@ -23,10 +24,11 @@ public actor HTTPClient {
         /// Create and return a new HTTPClient configuration instance.
         ///
         /// - Parameters:
-        ///   - baseURL: The base URL to use for requests sent through the client.
+        ///   - baseURL: Optional. The base URL to use for requests sent through the client. If this is not set,
+        ///   the client will use the URL provided in the request template. If neither is set the client will throw an error.
         ///   - decoder: The default decoder for parsing payloads.
         ///   - encoder: The default encoder for converting JSON payloads.
-        public init(baseURL: URL, decoder: JSONDecoder = JSONDecoder(), encoder: JSONEncoder = JSONEncoder()) {
+        public init(baseURL: URL?, decoder: JSONDecoder = JSONDecoder(), encoder: JSONEncoder = JSONEncoder()) {
             self.baseURL = baseURL
             self.decoder = decoder
             self.encoder = encoder
