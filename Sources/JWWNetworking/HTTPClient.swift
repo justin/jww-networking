@@ -15,6 +15,9 @@ public actor HTTPClient {
         /// the client will use the URL provided in the request template. If neither is set the client will throw an error of type `JWWNetworkError.invalidRequest`.
         public let baseURL: URL?
 
+        /// The user agent to use for requests sent through the client.
+        public let userAgent: String?
+
         /// The default decoder for parsing payloads.
         public let decoder: JSONDecoder
 
@@ -26,10 +29,15 @@ public actor HTTPClient {
         /// - Parameters:
         ///   - baseURL: Optional. The base URL to use for requests sent through the client. If this is not set,
         ///   the client will use the URL provided in the request template. If neither is set the client will throw an error.
+        ///   - userAgent: The user agent to use for requests sent through the client.
         ///   - decoder: The default decoder for parsing payloads.
         ///   - encoder: The default encoder for converting JSON payloads.
-        public init(baseURL: URL?, decoder: JSONDecoder = JSONDecoder(), encoder: JSONEncoder = JSONEncoder()) {
+        public init(baseURL: URL?,
+                    userAgent: String? = nil,
+                    decoder: JSONDecoder = JSONDecoder(),
+                    encoder: JSONEncoder = JSONEncoder()) {
             self.baseURL = baseURL
+            self.userAgent = userAgent
             self.decoder = decoder
             self.encoder = encoder
         }
@@ -58,7 +66,7 @@ public actor HTTPClient {
     /// Convert a request template into a network request and attempt to return the expected values.
     @discardableResult
     public func send<T: NetworkRequest>(template: T) async throws(JWWNetworkError) -> T.Output {
-        let builder = NetworkRequestBuilder(template: template)
+        let builder = NetworkRequestBuilder(template: template, configuration: configuration)
         let generatedRequest = try builder.build(for: self)
 
         do {

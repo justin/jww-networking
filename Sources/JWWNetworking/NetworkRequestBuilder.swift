@@ -6,6 +6,9 @@ public struct NetworkRequestBuilder {
     /// The request template to convert into a `URLRequest`.
     public let template: any NetworkRequest
 
+    /// The network configuration to use for composing and sending requests.
+    public let configuration: HTTPClient.Configuration
+
     // MARK: Initialization
     // ====================================
     // Initialization
@@ -15,8 +18,10 @@ public struct NetworkRequestBuilder {
     ///
     /// - Parameters:
     ///   - template: The request template to convert into a `URLRequest`.
-    public init(template: any NetworkRequest) {
+    ///   - configuration: The network configuration to use for composing and sending requests.
+    public init(template: any NetworkRequest, configuration: HTTPClient.Configuration) {
         self.template = template
+        self.configuration = configuration
     }
 
     // MARK: Action Methods
@@ -52,8 +57,16 @@ public struct NetworkRequestBuilder {
         return request
     }
     private func buildRequestHeaders() -> [String: String] {
+        var serviceHeaders: [String: String] = [:]
+        if let userAgent = configuration.userAgent {
+            serviceHeaders[HTTPField.Name.userAgent.rawName] = userAgent
+        }
+
         let requestHeaders: [String: String] = template.headers.reduce(into: [:]) { result, x in
             result[x.key.rawName] = x.value
+        }.merging(serviceHeaders) { (requestHeader, _) -> String in
+            // Prefer request-specific headers to service-wide headers.
+            return requestHeader
         }
 
         return requestHeaders
