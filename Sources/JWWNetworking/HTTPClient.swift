@@ -24,22 +24,28 @@ public actor HTTPClient {
         /// The default encoder for converting JSON payloads.
         public let encoder: JSONEncoder
 
+        /// Optional. The authentication provider to use for setting the access token for requests.
+        public let authentication: AuthenticationProvider?
+
         /// Create and return a new HTTPClient configuration instance.
         ///
         /// - Parameters:
         ///   - baseURL: Optional. The base URL to use for requests sent through the client. If this is not set,
         ///   the client will use the URL provided in the request template. If neither is set the client will throw an error.
         ///   - userAgent: The user agent to use for requests sent through the client.
+        ///   - authentication: Optional. The authentication provider to use for setting the access token for requests.
         ///   - decoder: The default decoder for parsing payloads.
         ///   - encoder: The default encoder for converting JSON payloads.
         public init(baseURL: URL?,
                     userAgent: String? = nil,
+                    authentication: AuthenticationProvider? = nil,
                     decoder: JSONDecoder = JSONDecoder(),
                     encoder: JSONEncoder = JSONEncoder()) {
             self.baseURL = baseURL
             self.userAgent = userAgent
             self.decoder = decoder
             self.encoder = encoder
+            self.authentication = authentication
         }
     }
 
@@ -67,7 +73,7 @@ public actor HTTPClient {
     @discardableResult
     public func send<T: NetworkRequest>(template: T) async throws(JWWNetworkError) -> T.Output {
         let builder = NetworkRequestBuilder(template: template, configuration: configuration)
-        let generatedRequest = try builder.build(for: self)
+        let generatedRequest = try await builder.build(for: self)
 
         do {
             let (data, response) = try await session.data(for: generatedRequest)

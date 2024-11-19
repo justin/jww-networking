@@ -45,3 +45,21 @@ public extension NetworkRequest {
         return (result, decoder.context)
     }
 }
+
+// MARK: Authenticated Requests
+// ====================================
+// Authenticated Requests
+// ====================================
+
+/// Protocol that defines the attributes and methods needed to generate an authenticated request
+/// JWWNetworking can understand.
+public protocol AuthenticatedRequest: NetworkRequest {
+    /// The type of authentication to use for the request.
+    var authenticationType: AuthenticationType { get }
+}
+
+/// Supported authentication types when making an `AuthenticatedRequest`
+public enum AuthenticationType: Sendable, Equatable {
+    /// Setting the Authorization field with a Bearer token.
+    case bearer
+}

@@ -32,7 +32,7 @@ public struct NetworkRequestBuilder {
     /// Convert a request template into a valid `URLRequest`.
     ///
     /// - Returns: A valid `URLRequest` that can be passed into a `URLSession`.
-    public func build(for client: HTTPClient) throws(JWWNetworkError) -> URLRequest {
+    public func build(for client: HTTPClient) async throws(JWWNetworkError) -> URLRequest {
         let url = template.url ?? client.configuration.baseURL
 
         guard let url else {
@@ -51,15 +51,25 @@ public struct NetworkRequestBuilder {
 
         var request = URLRequest(url: url)
         request.httpMethod = String(describing: template.method)
-        request.allHTTPHeaderFields = buildRequestHeaders()
+        request.allHTTPHeaderFields = try await buildRequestHeaders()
         request.httpBody = template.body
 
         return request
     }
-    private func buildRequestHeaders() -> [String: String] {
+    private func buildRequestHeaders() async throws(JWWNetworkError) -> [String: String] {
         var serviceHeaders: [String: String] = [:]
+
         if let userAgent = configuration.userAgent {
             serviceHeaders[HTTPField.Name.userAgent.rawName] = userAgent
+        }
+
+        if let authenticationController = configuration.authentication, template is (any AuthenticatedRequest) {
+            do {
+                let token = try await authenticationController.accessToken
+                serviceHeaders[HTTPField.Name.authorization.rawName] = "Bearer \(token)"
+            } catch {
+                throw JWWNetworkError.authenticationError(error)
+            }
         }
 
         let requestHeaders: [String: String] = template.headers.reduce(into: [:]) { result, x in

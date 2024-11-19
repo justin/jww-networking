@@ -8,6 +8,9 @@ public enum JWWNetworkError: Error, CustomNSError, CustomStringConvertible {
     /// The request requires an API key but one was not provided in the request.
     case missingAPIKey
 
+    /// A request couldn't be generated because a valid access token was unable to be retrieved.
+    case authenticationError(any Error)
+
     /// A request couldn't be generated because the URL was invalid.
     case invalidRequest
 
@@ -149,6 +152,8 @@ public enum JWWNetworkError: Error, CustomNSError, CustomStringConvertible {
             return 1001
         case .invalidRequest:
             return 1002
+        case .authenticationError:
+            return 1003
         case .networkError:
             return 2001
         case .emptyResponse:
@@ -172,6 +177,8 @@ public enum JWWNetworkError: Error, CustomNSError, CustomStringConvertible {
             message = "Request requires authentication. No API Key provided."
         case .invalidRequest:
             message = "The generated request was invalid."
+        case .authenticationError(let error):
+            message = "An error occurred while attempting to authenticate the request. \(error.localizedDescription)"
         case .networkError(let error):
             message = "The network request finished with error: \(error.localizedDescription)"
         case .requestFailed(let code, let errorMessage):
@@ -203,6 +210,8 @@ public enum JWWNetworkError: Error, CustomNSError, CustomStringConvertible {
             break
         case .invalidRequest:
             break
+        case .authenticationError(let error):
+            userInfo[.underlyingErrorKey] = error
         case .requestFailed:
             break
         case .invalidResponse(let response):
