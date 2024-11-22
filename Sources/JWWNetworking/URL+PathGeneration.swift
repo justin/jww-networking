@@ -1,9 +1,9 @@
 import Foundation
 
-typealias Path = URL.Path
+public typealias Path = URL.Path
 
 /// Protocol that defines the values that can be extracted from a path component.
-protocol PathComponent {
+public protocol PathComponent {
     /// A string representation of a path component. This omits the leading "/" separator.
     var stringValue: String { get }
 
@@ -11,7 +11,7 @@ protocol PathComponent {
     var pathValue: String { get }
 }
 
-extension URL {
+public extension URL {
     /// An object that supports building the path piece of a URL from an array of different components.
     struct Path: Equatable {
         /// The separator between each path component.
@@ -23,14 +23,14 @@ extension URL {
         /// Create and return a new `Path` object.
         ///
         /// - Parameter path: Array of path components.
-        init(_ path: PathComponent...) {
+        public init(_ path: PathComponent...) {
             self.init(path)
         }
 
         /// Create and return a new `Path` object.
         ///
         /// - Parameter path: Array of path components.
-        init(_ path: [PathComponent]) {
+        public init(_ path: [PathComponent]) {
             let adjusted: [PathComponent] = path.map({ component in
                 guard component.stringValue.hasPrefix(Path.separator) else {
                     return component
@@ -45,15 +45,15 @@ extension URL {
         /// Append an additional component to an existing path.
         ///
         /// - Parameter path: The path component to append.
-        func appending(_ path: PathComponent...) -> Path {
+        public func appending(_ path: PathComponent...) -> Path {
             Path(self.components + path)
         }
 
-        static func + (lhs: Path, rhs: Path) -> Path {
+        public static func + (lhs: Path, rhs: Path) -> Path {
             Path(lhs.components + rhs.components)
         }
 
-        static func == (lhs: URL.Path, rhs: URL.Path) -> Bool {
+        public static func == (lhs: URL.Path, rhs: URL.Path) -> Bool {
             lhs.pathValue == rhs.pathValue
         }
     }
@@ -64,10 +64,10 @@ extension URL {
 // Collection + Sequence Conformance
 // ========================================
 extension Path: Collection {
-    typealias Element = PathComponent
-    typealias Iterator = AnyIterator<Element>
+    public typealias Element = PathComponent
+    public typealias Iterator = AnyIterator<Element>
 
-    func makeIterator() -> Iterator {
+    public func makeIterator() -> Iterator {
         var iterator = components.makeIterator()
 
         return AnyIterator {
@@ -75,20 +75,20 @@ extension Path: Collection {
         }
     }
 
-    var startIndex: Int {
+    public var startIndex: Int {
         components.startIndex
     }
 
-    var endIndex: Int {
+    public var endIndex: Int {
         components.endIndex
     }
 
-    subscript(position: Int) -> Element {
+    public subscript(position: Int) -> Element {
         components[position]
     }
 
     // swiftlint:disable:next identifier_name
-    func index(after i: Int) -> Int {
+    public func index(after i: Int) -> Int {
         components.index(after: i)
     }
 }
@@ -98,13 +98,13 @@ extension Path: Collection {
 // PathComponent Conformances
 // ====================================
 extension Path: PathComponent {
-    var stringValue: String {
+    public var stringValue: String {
         components
             .map(\.stringValue)
             .joined(separator: Path.separator)
     }
 
-    var pathValue: String {
+    public var pathValue: String {
         components
             .map(\.pathValue)
             .joined()
@@ -112,19 +112,19 @@ extension Path: PathComponent {
 }
 
 extension String: PathComponent {
-    var stringValue: String {
+    public var stringValue: String {
         return self
     }
 }
 
 extension Int: PathComponent {
-    var stringValue: String {
+    public var stringValue: String {
         String(describing: self)
     }
 }
 
 extension PathComponent {
-    var pathValue: String {
+    public var pathValue: String {
         let pathValue: String
         switch stringValue {
         case _ where stringValue.isEmpty:
