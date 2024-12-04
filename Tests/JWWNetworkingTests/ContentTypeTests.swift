@@ -4,16 +4,14 @@ import Testing
 
 /// Tests to exercise our `ContentType` type.
 struct ContentTypeTests {
-    /// Validate we can initialize a new content type object.
-    @Test
+    @Test("Create a new content type object.")
     func initialization() {
         let key = ContentType("application/gzip")
 
         #expect(key.value == "application/gzip")
     }
 
-    /// Validate we return the key value when describing a content type object.
-    @Test
+    @Test("Return key value when describing a content type object.")
     func customDescription() throws {
         let expectedValue = "application/json"
 

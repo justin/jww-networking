@@ -4,8 +4,7 @@ import Testing
 
 /// Tests to validate the `URL.Path` type.
 struct URLPathGenerationTests {
-    /// Validate we can create a new Path object.
-    @Test
+    @Test("Create a new Path object.")
     func initialization() throws {
         let path = Path("v1/foo/1/bar")
         let expectedValue = "/v1/foo/1/bar"
@@ -15,8 +14,7 @@ struct URLPathGenerationTests {
         #expect(result == expectedValue)
     }
 
-    /// Validate we can get the `pathValue` for a given path object..
-    @Test
+    @Test("Get the `pathValue` for a given path object.")
     func gettingPathValue() throws {
         let path = Path(["v1", "foo", 1, "bar"])
         let expectedValue = "/v1/foo/1/bar"
@@ -26,8 +24,7 @@ struct URLPathGenerationTests {
         #expect(result == expectedValue)
     }
 
-    /// Validate we can get the `stringValue` for a given path object.
-    @Test
+    @Test("Get the `stringValue` for a given path object.")
     func gettingStringValue() throws {
         let path = Path(["v1", "foo", 1, "bar"])
         let expectedValue = "v1/foo/1/bar"
@@ -37,9 +34,7 @@ struct URLPathGenerationTests {
         #expect(result == expectedValue)
     }
 
-    /// Validate we don't add a second leading "/" if one was already defined
-    /// during path init.
-    @Test
+    @Test("Don't add a second leading \"/\" if one was already defined during path init.")
     func omittingSeparatorIfItAlreadyExists() throws {
         let path = Path("/v1/foo/1/bar")
         let expectedValue = "/v1/foo/1/bar"
@@ -49,8 +44,7 @@ struct URLPathGenerationTests {
         #expect(result == expectedValue)
     }
 
-    /// Valudate we properly support an empty/nil path.
-    @Test
+    @Test("Create a new Path object with an empty path.")
     func emptyPathValue() throws {
         let path = Path("")
         let expectedValue = ""
@@ -60,8 +54,7 @@ struct URLPathGenerationTests {
         #expect(result == expectedValue)
     }
 
-    /// Validate we can append a path value with a new one.
-    @Test
+    @Test("Append a new path component to an existing one.")
     func appendingNewPathComponent() throws {
         let path = Path("v1")
         let expectedValue = "/v1/foo"
@@ -71,8 +64,7 @@ struct URLPathGenerationTests {
         #expect(result.pathValue == expectedValue)
     }
 
-    /// Validate we can join two path objects together.
-    @Test
+    @Test("Join two path objects together.")
     func additionOperator() throws {
         let path = Path("v1")
         let expectedValue = "/v1/foo"
@@ -82,9 +74,7 @@ struct URLPathGenerationTests {
         #expect(result.pathValue == expectedValue)
     }
 
-    /// Validate if each component of a path includes a "/" we don't duplicate it when
-    /// generating the `pathValue`.
-    @Test
+    @Test("Path with a separator in each component.")
     func pathWithASeparatorInEachComponent() throws {
         let path = Path("/v1", "/foo", "biz")
         let expectedValue = "/v1/foo/biz"

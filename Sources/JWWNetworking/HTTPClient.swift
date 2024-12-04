@@ -8,6 +8,8 @@ public actor HTTPClient {
     /// The `URLSession` instance for making requests.
     public let session: URLSession
 
+    private let delegate: HTTPClientDelegate
+
     /// Object that contains configuration information for setting up the HTTP client.
     public final class Configuration: Sendable {
         /// Optional. The base URL to use for requests sent through the client. If this is not set,
@@ -58,9 +60,10 @@ public actor HTTPClient {
     /// - Parameters:
     ///   - configuration: The network configuration to use for composing and sending requests.
     ///   - session: The `URLSession` instance for making requests.
-    public init(configuration: Configuration, session: URLSession = .shared) {
+    public init(configuration: Configuration, session: URLSession = .shared, delegate: HTTPClientDelegate? = nil) {
         self.session = session
         self.configuration = configuration
+        self.delegate = delegate ?? DefaultHTTPClientDelegate()
     }
 
     // MARK: Public Methods
@@ -72,9 +75,11 @@ public actor HTTPClient {
     @discardableResult
     public func send<T: NetworkRequest>(template: T) async throws(JWWNetworkError) -> T.Output {
         let builder = NetworkRequestBuilder(template: template)
-        let generatedRequest = try await builder.build(for: self)
+        var generatedRequest = try await builder.build(for: self)
 
         do {
+            try await delegate.client(self, willSendRequest: &generatedRequest)
+
             let (data, response) = try await session.data(for: generatedRequest)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw JWWNetworkError.invalidResponse(response)
