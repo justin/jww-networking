@@ -1,6 +1,5 @@
 import Foundation
 @testable import JWWNetworking
-import HTTPTypes
 
 /// Network request object that can have any of its values injected or adjusted.
 struct NetworkRequestFake: NetworkRequest {
@@ -8,17 +7,17 @@ struct NetworkRequestFake: NetworkRequest {
 
     var url: URL?
     var path: String
-    var method: HTTPRequest.Method
+    var method: HTTPMethod
     var queryItems: [URLQueryItem]
-    var headers: [HTTPField.Name: String]
+    var headers: [HTTPRequestHeaderKey: String]
     var body: Data?
 
     /// Create a new request template using the passed in components.
     init(baseURL: URL,
          path: String,
          queryItems: [URLQueryItem] = [],
-         method: HTTPRequest.Method,
-         headers: [HTTPField.Name: String] = [:],
+         method: HTTPMethod,
+         headers: [HTTPRequestHeaderKey: String] = [:],
          body: Data? = nil) {
         self.url = baseURL
         self.path = path
@@ -30,7 +29,7 @@ struct NetworkRequestFake: NetworkRequest {
 
     /// Create a new request template using the passed in `URL`.
     /// The URL will be broken into components to populate the appropriate values.
-    init(url: URL, method: HTTPRequest.Method = .get, body: Data? = nil, headers: [HTTPField.Name: String] = [:]) {
+    init(url: URL, method: HTTPMethod = .get, body: Data? = nil, headers: [HTTPRequestHeaderKey: String] = [:]) {
         let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
 
         // Generate the base URL from the components in the passed in `url`.

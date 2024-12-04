@@ -1,5 +1,4 @@
 import Foundation
-import HTTPTypes
 
 /// Primary client for accessing an HTTP API.
 public actor HTTPClient {

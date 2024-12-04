@@ -1,5 +1,4 @@
 import Foundation
-import HTTPTypes
 
 /// Type that converst a network request template into a valid `URLRequest` object.
 public struct NetworkRequestBuilder {
@@ -60,20 +59,20 @@ public struct NetworkRequestBuilder {
         var serviceHeaders: [String: String] = [:]
 
         if let userAgent = configuration.userAgent {
-            serviceHeaders[HTTPField.Name.userAgent.rawName] = userAgent
+            serviceHeaders[HTTPRequestHeaderKey.userAgent.value] = userAgent
         }
 
         if let authenticationController = configuration.authentication, template is (any AuthenticatedRequest) {
             do {
                 let token = try await authenticationController.accessToken
-                serviceHeaders[HTTPField.Name.authorization.rawName] = "Bearer \(token)"
+                serviceHeaders[HTTPRequestHeaderKey.authorization.value] = "Bearer \(token)"
             } catch {
                 throw JWWNetworkError.authenticationError(error)
             }
         }
 
         let requestHeaders: [String: String] = template.headers.reduce(into: [:]) { result, x in
-            result[x.key.rawName] = x.value
+            result[x.key.value] = x.value
         }.merging(serviceHeaders) { (requestHeader, _) -> String in
             // Prefer request-specific headers to service-wide headers.
             return requestHeader

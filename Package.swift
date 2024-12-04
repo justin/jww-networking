@@ -15,13 +15,11 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/justin/jww-standard-lib", from: "1.2.0"),
         .package(url: "https://github.com/justin/jww-xctest-extensions", from: "1.4.0"),
-        .package(url: "https://github.com/apple/swift-http-types.git", from: "1.3.0"),
     ],
     targets: [
         .target(
             name: "JWWNetworking",
             dependencies:  [
-                .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "JWWCore", package: "jww-standard-lib")
             ]),
 
