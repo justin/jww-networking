@@ -1,12 +1,9 @@
 import Foundation
 
 /// Type that converst a network request template into a valid `URLRequest` object.
-public struct NetworkRequestBuilder {
+public final class NetworkRequestBuilder {
     /// The request template to convert into a `URLRequest`.
     public let template: any NetworkRequest
-
-    /// The network configuration to use for composing and sending requests.
-    public let configuration: HTTPClient.Configuration
 
     // MARK: Initialization
     // ====================================
@@ -17,10 +14,8 @@ public struct NetworkRequestBuilder {
     ///
     /// - Parameters:
     ///   - template: The request template to convert into a `URLRequest`.
-    ///   - configuration: The network configuration to use for composing and sending requests.
-    public init(template: any NetworkRequest, configuration: HTTPClient.Configuration) {
+    public init(template: any NetworkRequest) {
         self.template = template
-        self.configuration = configuration
     }
 
     // MARK: Action Methods
@@ -50,19 +45,19 @@ public struct NetworkRequestBuilder {
 
         var request = URLRequest(url: url)
         request.httpMethod = String(describing: template.method)
-        request.allHTTPHeaderFields = try await buildRequestHeaders()
+        request.allHTTPHeaderFields = try await buildRequestHeaders(client: client)
         request.httpBody = template.body
 
         return request
     }
-    private func buildRequestHeaders() async throws(JWWNetworkError) -> [String: String] {
+    private func buildRequestHeaders(client: HTTPClient) async throws(JWWNetworkError) -> [String: String] {
         var serviceHeaders: [String: String] = [:]
 
-        if let userAgent = configuration.userAgent {
+        if let userAgent = client.configuration.userAgent {
             serviceHeaders[HTTPRequestHeaderKey.userAgent.value] = userAgent
         }
 
-        if let authenticationController = configuration.authentication, template is (any AuthenticatedRequest) {
+        if let authenticationController = client.configuration.authentication, template is (any AuthenticatedRequest) {
             do {
                 let token = try await authenticationController.accessToken
                 serviceHeaders[HTTPRequestHeaderKey.authorization.value] = "Bearer \(token)"

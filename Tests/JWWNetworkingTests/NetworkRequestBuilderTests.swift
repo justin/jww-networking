@@ -17,8 +17,7 @@ final class NetworkRequestBuilderTests: NetworkTestCase {
                                           queryItems: queryItems,
                                           method: expectedMethod)
 
-        let result = try await NetworkRequestBuilder(template: template,
-                                                     configuration: HTTPClient.Configuration(baseURL: TestingConstants.baseURL)).build(for: client)
+        let result = try await NetworkRequestBuilder(template: template).build(for: client)
 
         XCTAssertNotNil(result.url)
         XCTAssertEqual(result.url, expectedURL)
@@ -37,8 +36,7 @@ final class NetworkRequestBuilderTests: NetworkTestCase {
             HTTPRequestHeaderKey("Fiz"): "Buzz"
         ])
 
-        let result = try await NetworkRequestBuilder(template: request,
-                                               configuration: HTTPClient.Configuration(baseURL: TestingConstants.baseURL)).build(for: client)
+        let result = try await NetworkRequestBuilder(template: request).build(for: client)
 
         XCTAssertEqual(result.allHTTPHeaderFields, expectedHeaders)
     }
@@ -47,8 +45,7 @@ final class NetworkRequestBuilderTests: NetworkTestCase {
     func testNoQuestionMarkIfNoQueryParameters() async throws {
         let template = NetworkRequestFake(baseURL: TestingConstants.baseURL, path: "/fake-url", method: .get)
 
-        let request = try await NetworkRequestBuilder(template: template,
-                                                         configuration: HTTPClient.Configuration(baseURL: TestingConstants.baseURL)).build(for: client)
+        let request = try await NetworkRequestBuilder(template: template).build(for: client)
         let result = try XCTUnwrap(request.url)
 
         XCTAssertFalse(result.absoluteString.hasSuffix("?"), "URL is \(result.absoluteURL)")
@@ -58,21 +55,20 @@ final class NetworkRequestBuilderTests: NetworkTestCase {
     func testSettingUserAgentHeader() async throws {
         let userAgent = "FakeUserAgent/1.0"
         let configuration = HTTPClient.Configuration(baseURL: TestingConstants.baseURL, userAgent: userAgent)
+        let client = HTTPClient(configuration: configuration)
 
         let request = NetworkRequestFake(url: TestingConstants.baseURL)
 
-        let result = try await NetworkRequestBuilder(template: request, configuration: configuration).build(for: client)
+        let result = try await NetworkRequestBuilder(template: request).build(for: client)
 
         XCTAssertEqual(result.allHTTPHeaderFields?["User-Agent"], userAgent)
     }
 
     /// Validate if we do not set the user agent header on our request it falls back to the default.
     func testFallingBackToDefaultUserAgent() async throws {
-        let configuration = HTTPClient.Configuration(baseURL: TestingConstants.baseURL)
-
         let request = NetworkRequestFake(url: TestingConstants.baseURL)
 
-        let result = try await NetworkRequestBuilder(template: request, configuration: configuration).build(for: client)
+        let result = try await NetworkRequestBuilder(template: request).build(for: client)
 
         XCTAssertNil(result.allHTTPHeaderFields?["User-Agent"])
     }
