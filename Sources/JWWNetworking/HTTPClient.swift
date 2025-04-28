@@ -73,7 +73,7 @@ public actor HTTPClient {
 
     /// Convert a request template into a network request and attempt to return the expected values.
     @discardableResult
-    public func send<T: NetworkRequest>(template: T) async throws(JWWNetworkError) -> T.Output {
+    public func send<T: NetworkRequestTemplate>(template: T) async throws(JWWNetworkError) -> T.Output {
         let builder = NetworkRequestBuilder(template: template)
         var generatedRequest = try await builder.build(for: self)
 
