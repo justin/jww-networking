@@ -1,11 +1,12 @@
 import Foundation
+import JWWCore
 @testable import JWWNetworking
 
 /// Network request object that can have any of its values injected or adjusted.
-struct NetworkRequestFake: NetworkRequest {
+struct NetworkRequestFake: GeneratedNetworkRequest {
     typealias Output = NetworkResponseFake
 
-    var url: URL?
+    var baseURL: URL?
     var path: String
     var method: HTTPMethod
     var queryItems: [URLQueryItem]
@@ -19,7 +20,7 @@ struct NetworkRequestFake: NetworkRequest {
          method: HTTPMethod,
          headers: [HTTPRequestHeaderKey: String] = [:],
          body: Data? = nil) {
-        self.url = baseURL
+        self.baseURL = baseURL
         self.path = path
         self.method = method
         self.queryItems = queryItems
@@ -27,30 +28,41 @@ struct NetworkRequestFake: NetworkRequest {
         self.body = body
     }
 
-    /// Create a new request template using the passed in `URL`.
-    /// The URL will be broken into components to populate the appropriate values.
-    init(url: URL, method: HTTPMethod = .get, body: Data? = nil, headers: [HTTPRequestHeaderKey: String] = [:]) {
-        let urlComponents = URLComponents(url: url, resolvingAgainstBaseURL: false)
-
-        // Generate the base URL from the components in the passed in `url`.
-        var baseURLComponents = URLComponents()
-        baseURLComponents.scheme = urlComponents?.scheme
-        baseURLComponents.host = urlComponents?.host
-        baseURLComponents.port = urlComponents?.port
-        self.url = baseURLComponents.url!
-
-        let path = Path(urlComponents?.path ?? "")
-        self.path = path.pathValue
-
-        self.queryItems = urlComponents?.queryItems ?? []
-        self.method = method
-        self.body = body
-        self.headers = headers
-    }
 }
 
 /// Network response object we can use for basic tests.
 struct NetworkResponseFake: Hashable, Sendable, Codable {
     /// The value to check against.
     let value: String
+}
+
+struct StaticRequestFake: StaticNetworkRequest {
+    typealias Output = NetworkResponseFake
+    let url: URL
+    let method: HTTPMethod
+    let body: Data?
+    let headers: [HTTPRequestHeaderKey: String]
+
+    /// Create a new request template using the passed in components.
+    init(url: URL, method: HTTPMethod = .get, body: Data? = nil, headers: [HTTPRequestHeaderKey : String] = [:]) {
+        self.url = url
+        self.method = method
+        self.body = body
+        self.headers = headers
+    }
+}
+
+
+/// Network request object that will always throw an error when being built since it is not a descendent
+/// of 'GeneratedNetworkRequest' or 'StaticURLRequest'.
+struct InvalidNetworkRequest: NetworkRequestTemplate {
+    typealias Output = NetworkResponseFake
+
+    let method: HTTPMethod = .get
+    let body: Data? = nil
+    let headers: [JWWNetworking.HTTPRequestHeaderKey: String] = [:]
+
+    static func decode(response: Data, with decoder: JSONDecoder) throws -> (NetworkResponseFake, (any DecodingContext)?) {
+        throw JWWNetworkError.invalidResponse(nil)
+    }
 }

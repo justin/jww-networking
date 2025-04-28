@@ -14,6 +14,11 @@ public enum JWWNetworkError: Error, CustomNSError, CustomStringConvertible {
     /// A request couldn't be generated because the URL was invalid.
     case invalidRequest
 
+    /// A request couldn't be generated because the template is invalid.
+    ///
+    /// - Parameter template: The invalid template.
+    case invalidTemplate(any NetworkRequestTemplate)
+
     /// An error occurred in the underlying `URLSession` object.
     ///
     /// - Parameter error: The underlying error returned by the `URLSessionTask`.
@@ -154,6 +159,8 @@ public enum JWWNetworkError: Error, CustomNSError, CustomStringConvertible {
             return 1002
         case .authenticationError:
             return 1003
+        case .invalidTemplate:
+            return 1004
         case .networkError:
             return 2001
         case .emptyResponse:
@@ -177,6 +184,8 @@ public enum JWWNetworkError: Error, CustomNSError, CustomStringConvertible {
             message = "Request requires authentication. No API Key provided."
         case .invalidRequest:
             message = "The generated request was invalid."
+        case .invalidTemplate(let template):
+            message = "The template \(String(describing: template)) was invalid."
         case .authenticationError(let error):
             message = "An error occurred while attempting to authenticate the request. \(error.localizedDescription)"
         case .networkError(let error):
@@ -210,6 +219,8 @@ public enum JWWNetworkError: Error, CustomNSError, CustomStringConvertible {
             break
         case .invalidRequest:
             break
+        case .invalidTemplate(let template):
+            userInfo[.networkTemplateKey] = template
         case .authenticationError(let error):
             userInfo[.underlyingErrorKey] = error
         case .requestFailed:
@@ -277,7 +288,7 @@ public extension JWWNetworkErrorUserInfoKey {
     /// `String`. A key that declares the error message.
     static let messageKey = JWWNetworkErrorUserInfoKey(rawValue: NSLocalizedDescriptionKey)
 
-    /// `Error`. The underlying error received by a system or third-party framework that caused the error.
+    /// `any Error`. The underlying error received by a system or third-party framework that caused the error.
     static let underlyingErrorKey = JWWNetworkErrorUserInfoKey(rawValue: NSUnderlyingErrorKey)
 
     /// `Any.Type`. The type that caused the error when parsing or decoding data fails.
@@ -289,5 +300,9 @@ public extension JWWNetworkErrorUserInfoKey {
     /// `String`. The JSON key that caused a decoding error.
     static let decodingErrorKeyNameKey = JWWNetworkErrorUserInfoKey(rawValue: "JWWDecodingErrorKeyNameKey")
 
+    /// `URLResponse`. The response payload that caused the error.
     static let responsePayloadKey = JWWNetworkErrorUserInfoKey(rawValue: "JWWResponsePayloadKey")
+
+    /// `any NetworkRequest`. The template that caused the error.
+    static let networkTemplateKey = JWWNetworkErrorUserInfoKey(rawValue: "JWWNetworkTemplateKey")
 }

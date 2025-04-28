@@ -3,7 +3,7 @@ import Foundation
 /// Type that converst a network request template into a valid `URLRequest` object.
 public final class NetworkRequestBuilder {
     /// The request template to convert into a `URLRequest`.
-    public let template: any NetworkRequest
+    public let template: any NetworkRequestTemplate
 
     // MARK: Initialization
     // ====================================
@@ -14,7 +14,7 @@ public final class NetworkRequestBuilder {
     ///
     /// - Parameters:
     ///   - template: The request template to convert into a `URLRequest`.
-    public init(template: any NetworkRequest) {
+    public init(template: some NetworkRequestTemplate) {
         self.template = template
     }
 
@@ -22,12 +22,28 @@ public final class NetworkRequestBuilder {
     // ====================================
     // Action Methods
     // ====================================
-
+    
     /// Convert a request template into a valid `URLRequest`.
     ///
     /// - Returns: A valid `URLRequest` that can be passed into a `URLSession`.
     public func build(for client: HTTPClient) async throws(JWWNetworkError) -> URLRequest {
-        let url = template.url ?? client.configuration.baseURL
+        switch template {
+        case let generatedTemplate as any GeneratedNetworkRequest:
+            return try await buildGeneratedRequest(template: generatedTemplate, client: client)
+        case let staticURLTemplate as any StaticNetworkRequest:
+            return try await buildURLRequest(template: staticURLTemplate, client: client)
+        default:
+            throw JWWNetworkError.invalidRequest
+        }
+    }
+
+    // MARK: Private / Convenience
+    // ====================================
+    // Private / Convenience
+    // ====================================
+
+    private func buildGeneratedRequest(template: any GeneratedNetworkRequest, client: HTTPClient) async throws(JWWNetworkError) -> URLRequest {
+        let url = template.baseURL ?? client.configuration.baseURL
 
         guard let url else {
             throw JWWNetworkError.invalidRequest
@@ -50,6 +66,7 @@ public final class NetworkRequestBuilder {
 
         return request
     }
+
     private func buildRequestHeaders(client: HTTPClient) async throws(JWWNetworkError) -> [String: String] {
         var serviceHeaders: [String: String] = [:]
 
@@ -74,6 +91,22 @@ public final class NetworkRequestBuilder {
         }
 
         return requestHeaders
+    }
+
+    private func buildURLRequest(template: any StaticNetworkRequest, client: HTTPClient) async throws(JWWNetworkError) -> URLRequest {
+        let url = template.url
+
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        guard let url = components?.url else {
+            throw JWWNetworkError.invalidRequest
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = String(describing: template.method)
+        request.allHTTPHeaderFields = try await buildRequestHeaders(client: client)
+        request.httpBody = template.body
+
+        return request
     }
 }
 
